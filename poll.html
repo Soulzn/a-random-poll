@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Poll</title>
+	<style>
+        body {
+			font-family: sans-serif;
+			background-color: #f9f9f9;
+			color: #333;
+			margin: 0;
+			padding: 0;
+		}
+		
+		.container {
+			margin: 20px auto;
+			padding: 20px;
+			background-color: #fff;
+			border-radius: 5px;
+			box-shadow: 0px 0px 5px #312d2d;
+			max-width: 600px;
+		}
+		
+		h1, h2 {
+			margin-top: 0;
+			text-align: center;
+			font-weight: 500;
+			color: black;
+		}
+		
+		.poll {
+			margin-bottom: 20px;
+		}
+		
+		.poll label {
+			display: block;
+			font-size: 25px;
+			margin-bottom: 10px;
+			font-weight: 500;
+			color: #000000;
+			background-color: #c9bebe;
+			box-shadow: 2px 2px 2px #000000;
+		}
+		
+		.poll input[type="radio"] {
+			margin-right: 5px;
+			vertical-align: middle;
+			position: relative;
+			top: -1px;
+		}
+		
+		.poll button[type="submit"] {
+			display: block;
+			margin: 20px auto 0;
+			padding: 10px 20px;
+			background-color: #10ce1f;
+			border: none;
+			border-radius: 5px;
+			color: #fff;
+			font-size: 16px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+		
+		.poll button[type="submit"]:hover {
+			background-color: #10ce1f;
+		}
+		
+		.graph {
+			display: block;
+			margin-bottom: 20px;
+		}
+		
+		.graph label {
+			display: block;
+			margin-bottom: 5px;
+			font-weight: 500;
+			color: #555;
+		}
+		
+		.graph-bar {
+			display: block;
+			margin-bottom: 5px;
+			padding: 10px;
+			background-color: #10ce1f;
+			color: #fff;
+			border-radius: 5px;
+			width: 0%;
+		}
+
+        .percentage {
+        font-size: 12px;
+        color: gray;
+        margin-left: 10px;
+        }
+		
+		@media only screen and (max-width: 600px) {
+			.poll button[type="submit"] {
+                width: 100%;
+		}
+	}
+</style>
+
+</head>
+<body>
+	<div class="container">
+		<h1>Poll</h1>
+		<form class="poll">
+			<h2>What is your favorite color?</h2>
+			<label><input type="radio" name="color" value="red">Red</label>
+			<label><input type="radio" name="color" value="green">Green</label>
+			<label><input type="radio" name="color" value="blue">Blue</label>
+			<label><input type="radio" name="color" value="yellow">Yellow</label>
+			<button type="submit">Vote</button>
+		</form>
+		<div class="graph">
+			<h2>Results</h2>
+			<label>Red</label>
+			<span class="graph-bar red-bar red-percentage"></span>
+			<label>Green</label>
+			<span class="graph-bar green-bar green-percentage"></span>
+			<label>Blue</label>
+			<span class="graph-bar blue-bar blue-percentage"></span>
+			<label>Yellow</label>
+			<span class="graph-bar yellow-bar yellow-percentage"></span>
+		</div>
+	</div>
+	<script>
+        let voted = false;
+        displayGraph();
+		const [form, redBar, greenBar, blueBar, yellowBar] = document.querySelectorAll('.poll, .red-bar, .green-bar, .blue-bar, .yellow-bar');
+        const [redPercentageLabel, greenPercentageLabel, bluePercentageLabel, yellowPercentageLabel] = document.querySelectorAll('.red-percentage, .green-percentage, .blue-percentage, .yellow-percentage');
+		const bar = document.querySelector('.graph-bar');
+        const voteCounts = {
+            red: 0,
+            green: 0,
+            blue: 0,
+            yellow: 0
+        };
+        
+        let totalVotes = 0;
+		let rpercentage = 0;
+		let gpercentage = 0;
+		let bpercentage = 0;
+		let ypercentage = 0;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (voted) {
+                alert('You have already voted!');
+                return;
+            }
+            
+            const selected = form.querySelector('input[type="radio"]:checked');
+            
+            if (!selected) {
+                alert('Please choose your vote!');
+                return;
+            }
+
+			const rpercentage = (voteCounts.red / totalVotes * 100).toFixed(2);
+			const gpercentage = (voteCounts.green / totalVotes * 100).toFixed(2);
+			const bpercentage = (voteCounts.blue / totalVotes * 100).toFixed(2);
+			const ypercentage = (voteCounts.yellow / totalVotes * 100).toFixed(2);
+
+            const percentage = [rpercentage, gpercentage, bpercentage, ypercentage];
+
+            switch(selected.value) {
+                case 'red':
+                    increaseBar(redBar, rpercentage);
+                    voteCounts.red++;
+					totalVotes++;
+                    break;
+                case 'green':
+                    increaseBar(greenBar, gpercentage);
+                    voteCounts.green++;
+					totalVotes++;
+                    break;					
+                case 'blue':
+                    increaseBar(blueBar, bpercentage);
+                    voteCounts.blue++;
+					totalVotes++;
+                    break;
+                case 'yellow':
+                    increaseBar(yellowBar, ypercentage);
+                    voteCounts.yellow++;
+					totalVotes++;
+                    break;
+            }
+			
+            voted = true;
+			
+			displayGraph();
+            updateLabels();
+            form.reset();
+        });
+
+        function displayGraph() {
+			if (!voted) {
+				var graphs = document.getElementsByClassName("graph");
+				for (var i = 0; i < graphs.length; i++) {
+					graphs[i].style.display = "none";
+				}
+			} 
+			else {
+				var graphs = document.getElementsByClassName("graph");
+				for (var i = 0; i < graphs.length; i++) {
+					graphs[i].style.display = "block";
+				}
+			}
+
+		}
+		
+		function increaseBar(bar, percentage) {
+            let currentWidth = parseInt(bar.style.width) || 0;
+			let newWidth = currentWidth + (percentage/100);
+			bar.style.width = `${newWidth}%`;
+            
+        }
+
+
+        function updateLabels() {
+			const rpercentage = (voteCounts.red / totalVotes * 100).toFixed(2);
+			const gpercentage = (voteCounts.green / totalVotes * 100).toFixed(2);
+			const bpercentage = (voteCounts.blue / totalVotes * 100).toFixed(2);
+			const ypercentage = (voteCounts.yellow / totalVotes * 100).toFixed(2);
+
+            const percentage = [rpercentage, gpercentage, bpercentage, ypercentage];
+
+            redPercentageLabel.textContent = rpercentage + "%";
+			greenPercentageLabel.textContent = gpercentage + "%";
+			bluePercentageLabel.textContent = bpercentage + "%";
+			yellowPercentageLabel.textContent = ypercentage + "%";
+
+			redBar.style.width = rpercentage + "%";
+			greenBar.style.width = gpercentage + "%";
+			blueBar.style.width = bpercentage + "%";
+			yellowBar.style.width = ypercentage + "%";
+
+			redBar.textContent = `(${rpercentage}%)`;
+			greenBar.textContent = `(${gpercentage}%)`;
+			blueBar.textContent = `(${bpercentage}%)`;
+			yellowBar.textContent = `(${ypercentage}%)`;
+
+            
+            
+        } 
+        
+    </script>
+	</body>
+</html>
